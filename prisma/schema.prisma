@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  BUYER
+  SELLER
+}
+
+enum Category {
+  TOPS
+  DRESSES
+  BOTTOMS
+  KNITWEAR
+  OUTERWEAR
+  ACCESSORIES
+}
+
+enum Era {
+  FIFTIES
+  SIXTIES
+  SEVENTIES
+  EIGHTIES
+  NINETIES
+  Y2K
+  MODERN
+}
+
+enum Condition {
+  MINT
+  EXCELLENT
+  GOOD
+  FAIR
+}
+
+enum ItemStatus {
+  AVAILABLE
+  SOLD_OUT
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  passwordHash String?
+  role      Role     @default(BUYER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  itemsListed  Item[]        @relation("SellerItems")
+  measurements Measurement?
+  cart         CartItem[]
+  orders       Order[]
+  wishlist     Wishlist[]
+}
+
+model Measurement {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  profile  String? @default("neutral")
+  heightCm Int?
+  bustCm   Int?
+  waistCm  Int?
+  hipsCm   Int?
+  inseamCm Int?
+  armLengthCm Int?
+  armCircCm   Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Item {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  priceKsh    Int
+  category    Category
+  era         Era
+  condition   Condition
+  sizeLabel   String?
+  stock       Int        @default(1)
+  status      ItemStatus @default(AVAILABLE)
+
+  drapeHem    String?    @default("waist")
+  drapeVolume Float      @default(1.0)
+  drapePreset String?    @default("tee")
+  isStudioReady Boolean  @default(true)
+
+  sellerId String
+  seller   User   @relation("SellerItems", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  images     Image[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  wishlistedBy Wishlist[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([category])
+  @@index([status])
+}
+
+model Image {
+  id       String  @id @default(cuid())
+  url      String
+  alt      String?
+  position Int     @default(0)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([itemId])
+}
+
+model CartItem {
+  id       String @id @default(cuid())
+  quantity Int    @default(1)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, itemId])
+}
+
+model Order {
+  id       String      @id @default(cuid())
+  totalKsh Int
+  status   OrderStatus @default(PENDING)
+
+  deliveryName    String?
+  deliveryPhone   String?
+  deliveryAddress String?
+  deliveryCity    String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int    @default(1)
+
+  // Snapshot fields — survive item deletion
+  itemTitle    String
+  itemPriceKsh Int
+  itemImageUrl String?
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Nullable + SetNull: deleting an item keeps order history intact
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([itemId])
+}
+
+model Wishlist {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId])
+  @@index([userId])
+}

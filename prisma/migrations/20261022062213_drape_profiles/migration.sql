@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Item" ADD COLUMN     "drapeHem" TEXT DEFAULT 'waist',
+ADD COLUMN     "drapeVolume" DOUBLE PRECISION NOT NULL DEFAULT 1.0;
