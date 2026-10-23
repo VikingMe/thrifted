@@ -109,7 +109,7 @@ export function MeasurementsEditor({
                   type="number"
                   min={min}
                   max={max}
-                  value={val}
+                  value={val === null ? "" : val}
                   onChange={(e) => update(f.key, e.target.value)}
                   placeholder={`e.g. ${normalized[f.key]}`}
                   className="measure-input"

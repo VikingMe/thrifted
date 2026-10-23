@@ -36,7 +36,7 @@ const PROFILE_RULES: Record<Exclude<SilhouetteProfile, "neutral">, ProfileRule[]
     { apply: (a, m) => { a.waistHalf *= m; } },
     { apply: (a, m) => { a.hipHalf *= m; } },
     { apply: (a, m) => { a.arm.unit *= m; } },
-  ].map((r, i) => ({
+  ].map((r, i: number) => ({
     apply: (a: SilhouetteAnchors, _m: number) => r.apply(a, [1.03, 0.94, 1.04, 0.98][i]),
   })),
   masculine: [
@@ -44,7 +44,7 @@ const PROFILE_RULES: Record<Exclude<SilhouetteProfile, "neutral">, ProfileRule[]
     { apply: (a, m) => { a.waistHalf *= m; } },
     { apply: (a, m) => { a.hipHalf *= m; } },
     { apply: (a, m) => { a.arm.unit *= m; } },
-  ].map((r, i) => ({
+  ].map((r, i: number) => ({
     apply: (a: SilhouetteAnchors, _m: number) => r.apply(a, [1.03, 1.02, 0.97, 1.04][i]),
   })),
 };

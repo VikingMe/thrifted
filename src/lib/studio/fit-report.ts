@@ -78,7 +78,7 @@ export function generateFitReport(
 
   // 3. Sleeves
   if (shape.sleeve && shape.sleeve !== "none") {
-    const armLen = measurements.armLengthCm ?? 58;
+    const armLen = Number(measurements.armLengthCm ?? 58);
     if (shape.sleeve === "long" && armLen > 62) {
       notes.push({
         type: "warning",
